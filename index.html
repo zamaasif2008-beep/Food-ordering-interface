@@ -1,254 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tastora — Gourmet Food Delivered</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tastora - Food Delivery</title>
+  <style>
+    /* Base Styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f7f5f0; color: #2c2925; overflow-x: hidden; }
+
+    /* --- Animations --- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
+    }
+    @keyframes pulseGlow {
+      0% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.1); }
+      100% { opacity: 0.3; transform: scale(1); }
+    }
+
+    .animate-up { opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    .floating { animation: float 4s ease-in-out infinite; }
+    
+    /* Header & Search */
+    header {
+      display: flex; justify-content: space-between; align-items: center; padding: 20px 8%; 
+      background: rgba(247, 245, 240, 0.85); backdrop-filter: blur(10px); position: sticky; 
+      top: 0; z-index: 100; border-bottom: 1px solid #e6e2d8;
+    }
+    .logo { font-size: 1.8rem; font-weight: 800; color: #ff6b35; letter-spacing: 1px; }
+    .search-box {
+      flex: 1; max-width: 400px; background: #fff; border: 2px solid #e6e2d8; border-radius: 30px;
+      padding: 10px 20px; display: flex; align-items: center; transition: 0.3s; margin: 0 20px;
+    }
+    .search-box:focus-within { border-color: #ff6b35; box-shadow: 0 0 15px rgba(255,107,53,0.2); transform: translateY(-2px); }
+    .search-box input { border: none; outline: none; width: 100%; font-size: 1rem; background: transparent; }
+
+    /* Interactive Buttons */
+    .btn {
+      background: #ff6b35; color: #fff; border: none; padding: 10px 24px; border-radius: 30px;
+      font-weight: bold; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn:hover { background: #e85a24; transform: scale(1.05); box-shadow: 0 5px 15px rgba(255,107,53,0.4); }
+    .btn:active { transform: scale(0.95); }
+
+    /* Hero Section */
+    .hero { display: flex; align-items: center; justify-content: space-between; padding: 60px 8%; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; }
+    .hero h1 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; }
+    .hero span { color: #ff6b35; }
+    .hero-img-container { position: relative; width: 320px; height: 320px; }
+    .hero-glow { position: absolute; inset: 0; background: radial-gradient(circle, #ff6b35 0%, transparent 70%); filter: blur(40px); animation: pulseGlow 4s infinite; z-index: 0; }
+    .hero-img-container img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 5px solid white; position: relative; z-index: 1; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+    /* Categories */
+    .categories { display: flex; gap: 15px; padding: 0 8%; max-width: 1200px; margin: 0 auto 30px; overflow-x: auto; scrollbar-width: none; }
+    .cat-btn {
+      background: #fff; border: 2px solid #e6e2d8; padding: 12px 20px; border-radius: 15px; cursor: pointer;
+      font-weight: 600; white-space: nowrap; transition: all 0.3s ease; color: #2c2925;
+    }
+    .cat-btn:hover { border-color: #ff6b35; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .cat-btn.active { background: #ff6b35; color: #fff; border-color: #ff6b35; box-shadow: 0 5px 15px rgba(255,107,53,0.3); transform: translateY(-2px); }
+
+    /* Menu Grid */
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; padding: 0 8% 60px; max-width: 1200px; margin: 0 auto; }
+    
+    /* Food Card with Hover Animations */
+    .card {
+      background: #fff; border-radius: 20px; overflow: hidden; position: relative; border: 1px solid #e6e2d8;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; transform: translateY(30px); animation: fadeUp 0.6s forwards;
+    }
+    .card:hover { transform: translateY(-12px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.08), 0 0 20px rgba(255,107,53,0.15); border-color: #ff6b35; }
+    .card-img-wrap { width: 100%; height: 210px; overflow: hidden; position: relative; background: #eee; }
+    .card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .card:hover img { transform: scale(1.12) rotate(1deg); }
+    
+    .card-info { padding: 20px; background: #fff; position: relative; z-index: 2; }
+    .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; }
+    .card-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+    .price { color: #ff6b35; font-size: 1.3rem; font-weight: 800; }
+
+    /* Veg/NonVeg Badge */
+    .diet { position: absolute; top: 15px; left: 15px; width: 22px; height: 22px; background: rgba(255,255,255,0.9); border: 2px solid; border-radius: 4px; display: flex; align-items: center; justify-content: center; z-index: 10; backdrop-filter: blur(4px); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .diet.veg { border-color: #2e7d32; }
+    .diet.veg::after { content: ''; width: 10px; height: 10px; background: #2e7d32; border-radius: 50%; }
+    .diet.nonveg { border-color: #c62828; }
+    .diet.nonveg::after { content: ''; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid #c62828; }
+
+    /* Cart Drawer */
+    #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(3px); z-index: 998; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    #overlay.active { opacity: 1; pointer-events: auto; }
+    #cart { position: fixed; top: 0; right: -450px; width: 100%; max-width: 400px; height: 100vh; background: #fff; z-index: 999; box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; }
+    #cart.active { right: 0; }
+    .cart-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .cart-items { flex: 1; overflow-y: auto; padding: 20px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f0ece1; }
+    .cart-footer { padding: 20px; background: #faf8f5; border-top: 1px solid #eee; }
+    .qty-btn { background: #eee; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s, transform 0.1s; }
+    .qty-btn:hover { background: #ddd; transform: scale(1.1); }
+    .qty-btn:active { transform: scale(0.9); }
+
+    /* Checkout Modal Styles */
+    #checkout-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+    #checkout-modal.active { display: flex; }
+    .modal-content { background: #fff; width: 90%; max-width: 450px; border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: fadeUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    .payment-options { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .payment-option-label { border: 2px solid #e6e2d8; padding: 12px 16px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-weight: 600; transition: all 0.2s ease; }
+    .payment-option-label:hover { border-color: #ff6b35; background: #fffaf8; transform: translateY(-2px); }
+    .payment-details-box { background: #f9f6f0; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e6e2d8; display: none; }
+    .payment-details-box.active { display: block; animation: fadeUp 0.3s ease; }
+    .input-field { width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; margin-top: 8px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+    .input-field:focus { border-color: #ff6b35; box-shadow: 0 0 8px rgba(255,107,53,0.15); }
+  </style>
 </head>
 <body>
-  <!-- Canvas for Piñata Explosion -->
-  <canvas id="pinataCanvas"></canvas>
 
-  <!-- Navigation -->
-  <header class="site-header">
-    <div class="header-container">
-      <div class="brand">
-        <span class="brand-badge">TASTORA</span>
-        <span class="brand-tagline">Midnight Dining & Curated Kitchen</span>
-      </div>
-
-      <div class="search-bar-wrap">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input type="text" id="searchInput" placeholder="Search biryani, mojito, grills, cakes..." />
-      </div>
-
-      <button id="openCartBtn" class="cart-trigger-btn" aria-label="Open cart">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <path d="M16 10a4 4 0 0 1-8 0"></path>
-        </svg>
-        <span>Cart</span>
-        <span id="cartCountBadge" class="cart-badge">0</span>
-      </button>
+  <!-- Header -->
+  <header class="animate-up" style="animation-delay: 0.05s;">
+    <div class="logo">Tastora</div>
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="search" placeholder="Search burgers, pizza, coffee..." onkeyup="renderMenu()">
     </div>
+    <button class="btn" id="cart-btn-target" style="background: #fff; color: #2c2925; border: 2px solid #e6e2d8;" onclick="toggleCart()">
+      🛒 Cart <span id="cart-count" style="background: #ff6b35; color: #fff; padding: 2px 8px; border-radius: 12px; margin-left: 5px; transition: transform 0.2s;">0</span>
+    </button>
   </header>
 
-  <!-- Hero Banner -->
-  <section class="hero-strip">
-    <div class="hero-content">
-      <p class="hero-sub">Fresh Ingredients • Master Chef Recipes • 30 Min Delivery</p>
-      <h1>Flavors Crafted for the Cravings of the Night.</h1>
+  <!-- Hero -->
+  <section class="hero animate-up" style="animation-delay: 0.15s;">
+    <div>
+      <h1>Cravings Met,<br><span>Delivered Fast.</span></h1>
+      <p style="font-size: 1.2rem; color: #6c655b;">Popular everyday picks. Fresh ingredients. Unbeatable taste.</p>
+    </div>
+    <div class="hero-img-container floating">
+      <div class="hero-glow"></div>
+      <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80" alt="Delicious Burger">
     </div>
   </section>
 
-  <!-- Category Nav -->
-  <nav class="category-nav">
-    <div class="category-scroll" id="categoryList">
-      <!-- Populated via JS -->
-    </div>
-  </nav>
+  <!-- Category Filters -->
+  <div class="categories animate-up" style="animation-delay: 0.25s;" id="cat-container"></div>
 
-  <!-- Main Food Grid -->
-  <main class="main-wrapper">
-    <div class="section-title-wrap">
-      <div>
-        <h2 id="currentCategoryHeading">All Dishes</h2>
-        <p id="itemCountLabel">Showing freshly prepared items</p>
-      </div>
-    </div>
-
-    <div class="food-grid" id="foodGrid">
-      <!-- Cards rendered via JS -->
-    </div>
-  </main>
+  <!-- Menu Grid -->
+  <div class="menu-grid" id="menu-grid"></div>
 
   <!-- Cart Drawer -->
-  <div class="cart-backdrop" id="cartBackdrop"></div>
-  <aside class="cart-drawer" id="cartDrawer">
+  <div id="overlay" onclick="toggleCart()"></div>
+  <div id="cart">
     <div class="cart-header">
-      <div>
-        <h3>Your Order</h3>
-        <p id="drawerItemSummary">0 items selected</p>
-      </div>
-      <button class="close-btn" id="closeCartBtn">&times;</button>
+      <h2>Your Order</h2>
+      <button onclick="toggleCart()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">✕</button>
     </div>
-
-    <!-- Free Delivery Progress -->
-    <div class="free-delivery-tracker">
-      <div class="tracker-info">
-        <span id="freeDeliveryMsg">Add ₹500 for Free Delivery</span>
-      </div>
-      <div class="tracker-track">
-        <div class="tracker-bar" id="freeDeliveryBar"></div>
-      </div>
-    </div>
-
-    <!-- Items List -->
-    <div class="cart-items" id="cartItemsList">
-      <!-- Items dynamically added -->
-    </div>
-
-    <!-- Drawer Footer -->
+    <div class="cart-items" id="cart-items"></div>
     <div class="cart-footer">
-      <div class="summary-line">
-        <span>Subtotal</span>
-        <span id="subtotalVal">₹0</span>
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>Item Total:</span> <span id="cart-total">₹0</span></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:#6c655b;"><span>Taxes & Fees:</span> <span id="cart-tax">₹0</span></div>
+      <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:bold; margin: 15px 0; border-top: 1px dashed #ccc; padding-top:15px;">
+        <span>To Pay:</span> <span id="cart-final" style="color:#ff6b35;">₹0</span>
       </div>
-      <div class="summary-line">
-        <span>Delivery Fee</span>
-        <span id="deliveryFeeVal">₹40</span>
-      </div>
-      <div class="summary-line total-line">
-        <span>To Pay</span>
-        <span id="cartTotalVal">₹0</span>
-      </div>
-      <button id="checkoutTriggerBtn" class="primary-checkout-btn">Proceed to Checkout</button>
+      <button class="btn" style="width: 100%; padding: 15px; font-size: 1.1rem;" onclick="openCheckout()">Proceed to Checkout</button>
     </div>
-  </aside>
-
-  <!-- Mobile Floating Cart Bar -->
-  <div class="mobile-cart-bar" id="mobileCartBar">
-    <div class="bar-info">
-      <span class="bar-count" id="mobileItemCount">0 items</span>
-      <span class="bar-price" id="mobileTotalPrice">₹0</span>
-    </div>
-    <button class="bar-btn" id="mobileViewCartBtn">View Cart →</button>
   </div>
 
-  <!-- CHECKOUT & PAYMENT MODAL -->
-  <div class="checkout-backdrop" id="checkoutBackdrop"></div>
-  <div class="checkout-modal" id="checkoutModal">
-    <div class="checkout-header">
-      <h3>Select Payment Method</h3>
-      <button class="close-modal-btn" id="closeCheckoutBtn">&times;</button>
-    </div>
-
-    <!-- Address details -->
-    <div class="checkout-inputs">
-      <label>Delivery Address</label>
-      <input type="text" id="custAddress" value="742 Evergreen Terrace, Flat 4B" placeholder="Flat / House No., Street, Landmark" />
-      <div class="inputs-row">
-        <div>
-          <label>Recipient Name</label>
-          <input type="text" id="custName" value="Alex Morgan" placeholder="Your name" />
-        </div>
-        <div>
-          <label>Contact Number</label>
-          <input type="text" id="custPhone" value="+91 98765 43210" placeholder="Mobile number" />
-        </div>
+  <!-- Checkout Modal -->
+  <div id="checkout-modal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h2 style="color:#2c2925;">Complete Payment</h2>
+        <button onclick="closeCheckout()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">✕</button>
       </div>
-    </div>
-
-    <!-- Payment Switcher Tabs -->
-    <div class="payment-tabs">
-      <button class="pay-tab active" data-method="cash">
-        <span class="tab-icon">💵</span>
-        <span>Cash on Delivery</span>
-      </button>
-
-      <button class="pay-tab" data-method="card">
-        <span class="tab-icon">💳</span>
-        <span>Card</span>
-      </button>
-
-      <button class="pay-tab" data-method="online">
-        <span class="tab-icon">⚡</span>
-        <span class="tab-title">Online <span class="badge-rec">(Recommended)</span></span>
-      </button>
-    </div>
-
-    <!-- Cash Panel -->
-    <div class="pay-panel active" id="panel-cash">
-      <div class="cash-card-info">
-        <div class="cash-icon-big">📦</div>
-        <p class="cash-title">Pay with exact cash or scan upon delivery</p>
-        <p class="cash-desc">No advance payment needed. Pay our delivery executive when your hot food arrives at your door.</p>
+      <p style="color:#6c655b; font-size:0.9rem;">Select your preferred payment method:</p>
+      
+      <div class="payment-options">
+        <label class="payment-option-label">
+          <input type="radio" name="payment" value="cod" checked onclick="switchPayment('cod')"> 💵 Cash on Delivery
+        </label>
+        <label class="payment-option-label">
+          <input type="radio" name="payment" value="card" onclick="switchPayment('card')"> 💳 Credit / Debit Card
+        </label>
+        <label class="payment-option-label">
+          <input type="radio" name="payment" value="gpay" onclick="switchPayment('gpay')"> 📱 Google Pay (GPay / UPI)
+        </label>
       </div>
-      <button class="action-pay-btn" id="confirmCashBtn">Confirm Cash Order (<span class="pay-amount-label">₹0</span>)</button>
-    </div>
 
-    <!-- Card Panel -->
-    <div class="pay-panel" id="panel-card">
-      <div class="dummy-card-preview">
-        <div class="card-chip"></div>
-        <div class="card-number-mock">4532 •••• •••• 8890</div>
-        <div class="card-meta">
+      <!-- COD Form Details -->
+      <div id="details-cod" class="payment-details-box active">
+        <p style="font-size:0.9rem; color:#444;">Pay securely with cash when your food arrives at your doorstep.</p>
+      </div>
+
+      <!-- Card Form Details -->
+      <div id="details-card" class="payment-details-box">
+        <label style="font-size:0.85rem; font-weight:600;">Card Number</label>
+        <input type="text" class="input-field" id="dummy-card-num" value="4532 •••• •••• 8890">
+        <div style="display:flex; gap:10px; margin-top:10px;">
           <div>
-            <small>CARD HOLDER</small>
-            <span>ALEX MORGAN</span>
+            <label style="font-size:0.85rem; font-weight:600;">Expiry</label>
+            <input type="text" class="input-field" id="dummy-card-exp" value="09/28">
           </div>
           <div>
-            <small>EXPIRES</small>
-            <span>09/28</span>
+            <label style="font-size:0.85rem; font-weight:600;">CVV</label>
+            <input type="text" class="input-field" id="dummy-card-cvv" value="492">
           </div>
         </div>
       </div>
-      <div class="card-inputs-grid">
-        <input type="text" value="4532 8920 1192 8890" readonly />
-        <div class="inputs-row">
-          <input type="text" value="09/28" readonly />
-          <input type="text" value="CVV: 492" readonly />
-        </div>
-      </div>
-      <button class="action-pay-btn" id="confirmCardBtn">Pay <span class="pay-amount-label">₹0</span> with Card</button>
-    </div>
 
-    <!-- Online Transaction Panel (Secret Video Link) -->
-    <div class="pay-panel" id="panel-online">
-      <div class="online-box">
-        <div class="online-secure-badge">
-          <span>🔒 256-bit Encrypted Instant Transfer</span>
-          <span class="pill-glow">Fastest</span>
-        </div>
-        <p class="online-prompt">
-          Instant UPI, NetBanking, and Instant Wallet settlement with zero convenience fee.
-        </p>
-
-        <!-- Secretly opens the target link in a new tab -->
-        <a 
-          href="https://youtu.be/dQw4w9WgXcQ?si=7SzsACEi2b-yFXuk" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          class="secret-online-btn"
-          id="onlineGatewayLink"
-        >
-          <span>Click here to proceed for payment</span>
-          <span class="arrow-icon">→</span>
-        </a>
+      <!-- GPay Details -->
+      <div id="details-gpay" class="payment-details-box" style="text-align: center; padding: 20px;">
+        <a href="https://youtu.be/dQw4w9WgXcQ?si=_F11qnESrFSeuLzS" target="_blank" style="color: #ff6b35; font-weight: 700; text-decoration: underline; font-size: 1.05rem; display: inline-block;">Click to get directed to payment website</a>
       </div>
+
+      <button class="btn" style="width:100%; padding:14px; margin-top:10px; font-size:1.05rem;" onclick="processPayment()">Pay & Place Order</button>
     </div>
   </div>
 
-  <!-- SUCCESS POPUP MODAL -->
-  <div class="success-backdrop" id="successBackdrop"></div>
-  <div class="success-modal" id="successModal">
-    <div class="success-blast-glow"></div>
-    <div class="check-circle-anim">
-      <svg viewBox="0 0 52 52">
-        <circle class="check-circle" cx="26" cy="26" r="23" fill="none"/>
-        <path class="check-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-      </svg>
-    </div>
-    <h2 class="success-heading">Successfully Done!</h2>
-    <p class="success-sub" id="successMethodText">Your order has been sent straight to the chef.</p>
-    
-    <div class="order-token-badge">
-      <span>Order ID: #TAS-<span id="orderTokenNum">9841</span></span>
-    </div>
+  <script>
+    const menuData = [
+      { id: 1, name: "Classic Cheeseburger", price: 249, cat: "fastfood", diet: "nonveg", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80" },
+      { id: 2, name: "Crispy French Fries", price: 149, cat: "fastfood", diet: "veg", img: "https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=500&q=80" },
+      { id: 3, name: "Margherita Pizza", price: 399, cat: "pizza", diet: "veg", img: "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=500&q=80" },
+      { id: 4, name: "Pepperoni Pizza", price: 499, cat: "pizza", diet: "nonveg", img: "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500&q=80" },
+      { id: 5, name: "Steamed Veg Momos", price: 129, cat: "asian", diet: "veg", img: "https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?auto=format&fit=crop&w=500&q=80" },
+      { id: 6, name: "Paneer Roll", price: 179, cat: "rolls", diet: "veg", img: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=500&q=80" },
+      { id: 7, name: "Chicken Shawarma", price: 199, cat: "rolls", diet: "nonveg", img: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?auto=format&fit=crop&w=500&q=80" },
+      { id: 8, name: "Veg Wrap", price: 159, cat: "rolls", diet: "veg", img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80" },
+      { id: 9, name: "Hakka Noodles", price: 219, cat: "asian", diet: "veg", img: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=500&q=80" },
+      { id: 10, name: "Chicken Dum Biryani", price: 349, cat: "indian", diet: "nonveg", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=500&q=80" },
+      { id: 11, name: "Butter Chicken", price: 429, cat: "indian", diet: "nonveg", img: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=500&q=80" },
+      { id: 12, name: "Paneer Tikka Masala", price: 369, cat: "indian", diet: "veg", img: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=500&q=80" },
+      { id: 13, name: "Sizzling Brownie", price: 229, cat: "desserts", diet: "veg", img: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500&q=80" },
+      { id: 14, name: "Classic Tiramisu", price: 249, cat: "desserts", diet: "veg", img: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=500&q=80" },
+      { id: 15, name: "Hot Coffee", price: 119, cat: "drinks", diet: "veg", img: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=500&q=80" },
+      { id: 16, name: "Virgin Mojito", price: 149, cat: "drinks", diet: "veg", img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=500&q=80" }
+    ];
 
-    <p class="estimate-time">⏱️ Estimated Arrival: <strong>28-35 mins</strong></p>
+    const categories = [
+      { id: "all", label: "✨ All" }, { id: "fastfood", label: "🍔 Burgers" },
+      { id: "pizza", label: "🍕 Pizza" }, { id: "rolls", label: "🌯 Rolls & Wraps" },
+      { id: "asian", label: "🥢 Momos & Asian" }, { id: "indian", label: "🍛 Indian & Biryani" }, 
+      { id: "desserts", label: "🍰 Desserts" }, { id: "drinks", label: "☕ Drinks" }
+    ];
 
-    <button class="success-close-btn" id="finishSuccessBtn">Awesome, Track Order</button>
-  </div>
+    let currentCat = "all";
+    let cart = [];
 
-  <script src="script.js"></script>
+    function init() {
+      const catHTML = categories.map(c => 
+        `<button class="cat-btn ${currentCat === c.id ? 'active' : ''}" onclick="setCategory('${c.id}')">${c.label}</button>`
+      ).join('');
+      document.getElementById('cat-container').innerHTML = catHTML;
+      renderMenu();
+    }
+
+    function setCategory(cat) { currentCat = cat; init(); }
+
+    function renderMenu() {
+      const query = document.getElementById('search').value.toLowerCase();
+      const grid = document.getElementById('menu-grid');
+      
+      const filtered = menuData.filter(item => {
+        const matchCat = currentCat === 'all' || item.cat === currentCat;
+        const matchSearch = item.name.toLowerCase().includes(query);
+        return matchCat && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6c655b;">No items found. Try searching something else!</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((item, index) => `
+        <div class="card" id="card-${item.id}" style="animation-delay: ${index * 0.05}s">
+          <div class="diet ${item.diet}" title="${item.diet === 'veg' ? 'Vegetarian' : 'Non-Vegetarian'}"></div>
+          <div class="card-img-wrap">
+            <img src="${item.img}" alt="${item.name}" loading="lazy">
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">${item.name}</h3>
+            <div class="card-bottom">
+              <span class="price">₹${item.price}</span>
+              <button class="btn" onclick="addToCart(event, ${item.id})">Add +</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleCart() {
+      document.getElementById('cart').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function addToCart(event, id) {
+      const item = menuData.find(i => i.id === id);
+      const existing = cart.find(i => i.id === id);
+      
+      if (existing) existing.qty++;
+      else cart.push({ ...item, qty: 1 });
+      
+      updateCart();
+
+      // --- Fly to Cart Animation Logic ---
+      const cardEl = document.getElementById(`card-${id}`);
+      const imgEl = cardEl ? cardEl.querySelector('img') : null;
+      const cartBtn = document.getElementById('cart-btn-target');
+
+      if (imgEl && cartBtn) {
+        const imgRect = imgEl.getBoundingClientRect();
+        const cartRect = cartBtn.getBoundingClientRect();
+
+        const flyer = imgEl.cloneNode(true);
+        flyer.style.position = 'fixed';
+        flyer.style.zIndex = '9999';
+        flyer.style.left = imgRect.left + 'px';
+        flyer.style.top = imgRect.top + 'px';
+        flyer.style.width = imgRect.width + 'px';
+        flyer.style.height = imgRect.height + 'px';
+        flyer.style.borderRadius = '15px';
+        flyer.style.objectFit = 'cover';
+        flyer.style.transition = 'all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        document.body.appendChild(flyer);
+
+        flyer.getBoundingClientRect();
+
+        const targetX = cartRect.left + cartRect.width / 2 - 20;
+        const targetY = cartRect.top + cartRect.height / 2 - 20;
+
+        flyer.style.left = targetX + 'px';
+        flyer.style.top = targetY + 'px';
+        flyer.style.width = '40px';
+        flyer.style.height = '40px';
+        flyer.style.opacity = '0.3';
+        flyer.style.transform = 'scale(0.3) rotate(360deg)';
+
+        setTimeout(() => {
+          flyer.remove();
+          const countBadge = document.getElementById('cart-count');
+          if (countBadge) {
+            countBadge.style.transform = 'scale(1.5)';
+            setTimeout(() => countBadge.style.transform = 'scale(1)', 200);
+          }
+        }, 700);
+      }
+    }
+
+    function changeQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+      }
+      updateCart();
+    }
+
+    function updateCart() {
+      const cartContainer = document.getElementById('cart-items');
+      const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
+      document.getElementById('cart-count').innerText = totalQty;
+
+      if (cart.length === 0) {
+        cartContainer.innerHTML = `<div style="text-align:center; margin-top:50px; color:#888;">Cart is empty.</div>`;
+      } else {
+        cartContainer.innerHTML = cart.map(item => `
+          <div class="cart-item">
+            <div>
+              <div style="font-weight:600;">${item.name}</div>
+              <div style="color:#ff6b35;">₹${item.price}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
+              <span>${item.qty}</span>
+              <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+      const tax = total > 0 ? 40 + Math.round(total * 0.05) : 0;
+      
+      document.getElementById('cart-total').innerText = `₹${total}`;
+      document.getElementById('cart-tax').innerText = `₹${tax}`;
+      document.getElementById('cart-final').innerText = `₹${total + tax}`;
+    }
+
+    function openCheckout() {
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+      toggleCart();
+      document.getElementById('checkout-modal').classList.add('active');
+    }
+
+    function closeCheckout() {
+      document.getElementById('checkout-modal').classList.remove('active');
+    }
+
+    function switchPayment(method) {
+      document.querySelectorAll('.payment-details-box').forEach(box => box.classList.remove('active'));
+      document.getElementById('details-' + method).classList.add('active');
+    }
+
+    function processPayment() {
+      const selectedMethod = document.querySelector('input[name="payment"]:checked').value;
+      let msg = "";
+      if (selectedMethod === 'cod') {
+        msg = "Order placed successfully! Pay via Cash on Delivery upon arrival.";
+      } else if (selectedMethod === 'card') {
+        const cardNum = document.getElementById('dummy-card-num').value;
+        if(!cardNum) { alert("Please enter card details"); return; }
+        msg = "Card payment processed successfully via dummy card!";
+      } else if (selectedMethod === 'gpay') {
+        msg = "Redirecting to payment website...";
+      }
+      
+      alert(msg);
+      cart = [];
+      updateCart();
+      closeCheckout();
+    }
+
+    window.onload = init;
+  </script>
 </body>
 </html>

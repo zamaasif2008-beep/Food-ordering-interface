@@ -24,17 +24,30 @@
       50% { opacity: 0.6; transform: scale(1.1); }
       100% { opacity: 0.3; transform: scale(1); }
     }
+    @keyframes ticker {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
 
     .animate-up { opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
     .floating { animation: float 4s ease-in-out infinite; }
     
+    /* Promo Ticker Bar */
+    .promo-bar { background: #ff6b35; color: #fff; font-size: 0.85rem; font-weight: 600; padding: 6px 0; overflow: hidden; white-space: nowrap; position: relative; }
+    .promo-track { display: inline-block; animation: ticker 20s linear infinite; }
+    .promo-track span { margin-right: 50px; }
+
     /* Header & Search */
     header {
-      display: flex; justify-content: space-between; align-items: center; padding: 20px 8%; 
+      display: flex; justify-content: space-between; align-items: center; padding: 12px 8%; 
       background: rgba(247, 245, 240, 0.85); backdrop-filter: blur(10px); position: sticky; 
       top: 0; z-index: 100; border-bottom: 1px solid #e6e2d8;
     }
-    .logo { font-size: 1.8rem; font-weight: 800; color: #ff6b35; letter-spacing: 1px; }
+    .logo-container { display: flex; flex-direction: column; cursor: pointer; }
+    .logo { font-size: 1.8rem; font-weight: 800; color: #ff6b35; letter-spacing: 1px; line-height: 1; }
+    .location-display { font-size: 0.75rem; color: #6c655b; font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 3px; transition: color 0.2s; }
+    .location-display:hover { color: #ff6b35; }
+
     .search-box {
       flex: 1; max-width: 400px; background: #fff; border: 2px solid #e6e2d8; border-radius: 30px;
       padding: 10px 20px; display: flex; align-items: center; transition: 0.3s; margin: 0 20px;
@@ -51,7 +64,7 @@
     .btn:active { transform: scale(0.95); }
 
     /* Hero Section */
-    .hero { display: flex; align-items: center; justify-content: space-between; padding: 60px 8%; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; }
+    .hero { display: flex; align-items: center; justify-content: space-between; padding: 50px 8%; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; }
     .hero h1 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; }
     .hero span { color: #ff6b35; }
     .hero-img-container { position: relative; width: 320px; height: 320px; }
@@ -116,17 +129,44 @@
     .payment-details-box.active { display: block; animation: fadeUp 0.3s ease; }
     .input-field { width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; margin-top: 8px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
     .input-field:focus { border-color: #ff6b35; box-shadow: 0 0 8px rgba(255,107,53,0.15); }
+
+    /* Piñata Canvas overlay & Tracker View */
+    #pinata-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 2000; }
+    #tracker-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1500; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+    #tracker-modal.active { display: flex; }
+    .tracker-card { background: #fff; width: 90%; max-width: 480px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: fadeUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .tracker-steps { display: flex; justify-content: space-between; margin: 30px 0; position: relative; }
+    .tracker-step { font-size: 0.8rem; font-weight: 600; color: #888; position: relative; z-index: 2; flex: 1; }
+    .tracker-step.active { color: #ff6b35; }
+    .tracker-step div { width: 35px; height: 35px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: bold; color: #555; transition: 0.3s; }
+    .tracker-step.active div { background: #ff6b35; color: #fff; box-shadow: 0 0 15px rgba(255,107,53,0.4); }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Promo Ticker Bar -->
+  <div class="promo-bar">
+    <div class="promo-track">
+      <span>✨ Use code <b>TASTYSUMMER</b> for 20% off your first order!</span>
+      <span>🔥 Free delivery on all orders above ₹499!</span>
+      <span>🎉 Piñata Celebration unlocked on every successful checkout!</span>
+    </div>
+  </div>
+
+  <!-- Header with Location on top left below Tastora logo -->
   <header class="animate-up" style="animation-delay: 0.05s;">
-    <div class="logo">Tastora</div>
+    <div class="logo-container" onclick="changeLocation()" title="Click to change location">
+      <div class="logo">Tastora</div>
+      <div class="location-display" id="location-display">
+        📍 Detecting location...
+      </div>
+    </div>
+    
     <div class="search-box">
       <span>🔍</span>
       <input type="text" id="search" placeholder="Search burgers, pizza, coffee..." onkeyup="renderMenu()">
     </div>
+    
     <button class="btn" id="cart-btn-target" style="background: #fff; color: #2c2925; border: 2px solid #e6e2d8;" onclick="toggleCart()">
       🛒 Cart <span id="cart-count" style="background: #ff6b35; color: #fff; padding: 2px 8px; border-radius: 12px; margin-left: 5px; transition: transform 0.2s;">0</span>
     </button>
@@ -155,7 +195,7 @@
   <div id="cart">
     <div class="cart-header">
       <h2>Your Order</h2>
-      <button onclick="toggleCart()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">✕</button>
+      <button onclick="toggleCart()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">✕</button>
     </div>
     <div class="cart-items" id="cart-items"></div>
     <div class="cart-footer">
@@ -211,13 +251,37 @@
       </div>
 
       <!-- GPay Details -->
-      <div id="details-gpay" class="payment-details-box" style="text-align: center; padding: 20px;">
-        <a href="https://youtu.be/dQw4w9WgXcQ?si=_F11qnESrFSeuLzS" target="_blank" style="color: #ff6b35; font-weight: 700; text-decoration: underline; font-size: 1.05rem; display: inline-block;">Click to get directed to payment website</a>
+      <div id="details-gpay" class="payment-details-box" style="text-align: center; padding: 15px;">
+        <p style="font-size: 0.9rem; margin-bottom: 8px; color: #444;">Click below to authorize your UPI transaction:</p>
+        <a href="https://youtu.be/dQw4w9WgXcQ?si=_F11qnESrFSeuLzS" target="_blank" style="color: #ff6b35; font-weight: 700; text-decoration: underline; font-size: 1rem;">Open Secure UPI Gateway</a>
       </div>
 
-      <button class="btn" style="width:100%; padding:14px; margin-top:10px; font-size:1.05rem;" onclick="processPayment()">Pay & Place Order</button>
+      <button class="btn" style="width:100%; padding:14px; margin-top:10px; font-size:1.05rem;" onclick="processPayment()">Pay & Smash Piñata 🪅</button>
     </div>
   </div>
+
+  <!-- Live Order Status Tracker Modal -->
+  <div id="tracker-modal">
+    <div class="tracker-card">
+      <h2 style="color:#ff6b35; margin-bottom: 5px;">🪅 Piñata Smashed!</h2>
+      <p style="color:#6c655b; font-size:0.95rem;">Your food is officially on the way! Track live status below:</p>
+      
+      <div class="tracker-steps">
+        <div class="tracker-step active"><div>✓</div>Confirmed</div>
+        <div class="tracker-step active"><div>👨‍🍳</div>Cooking</div>
+        <div class="tracker-step active"><div>🛵</div>On the Way</div>
+      </div>
+
+      <div style="background: #f9f6f0; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e6e2d8;">
+        <p style="font-weight: 700; color: #2c2925;">Estimated Delivery: <span style="color:#ff6b35;">22 Mins</span></p>
+      </div>
+
+      <button class="btn" style="width:100%; padding:12px;" onclick="closeTracker()">Got It, Thanks!</button>
+    </div>
+  </div>
+
+  <!-- Piñata Particle Canvas -->
+  <canvas id="pinata-canvas"></canvas>
 
   <script>
     const menuData = [
@@ -249,12 +313,57 @@
     let currentCat = "all";
     let cart = [];
 
+    // --- Web Audio API for Sound Cues ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(freq = 440, duration = 0.08) {
+      if (!audioCtx) return;
+      if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
     function init() {
       const catHTML = categories.map(c => 
         `<button class="cat-btn ${currentCat === c.id ? 'active' : ''}" onclick="setCategory('${c.id}')">${c.label}</button>`
       ).join('');
       document.getElementById('cat-container').innerHTML = catHTML;
       renderMenu();
+      initLocation();
+    }
+
+    // --- Geolocation & Location Manager ---
+    function initLocation() {
+      const locEl = document.getElementById('location-display');
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            // Successfully fetched GPS coordinates
+            locEl.innerHTML = `📍 GPS Location Active ▾`;
+          },
+          (error) => {
+            // Default fallback location if permission denied
+            locEl.innerHTML = `📍 T. Nagar, Chennai ▾`;
+          },
+          { timeout: 5000 }
+        );
+      } else {
+        locEl.innerHTML = `📍 T. Nagar, Chennai ▾`;
+      }
+    }
+
+    function changeLocation() {
+      const newLoc = prompt("Enter your delivery area/location:", "Anna Nagar, Chennai");
+      if (newLoc && newLoc.trim() !== "") {
+        document.getElementById('location-display').innerHTML = `📍 ${newLoc.trim()} ▾`;
+      }
     }
 
     function setCategory(cat) { currentCat = cat; init(); }
@@ -292,11 +401,13 @@
     }
 
     function toggleCart() {
+      playBeep(300, 0.05);
       document.getElementById('cart').classList.toggle('active');
       document.getElementById('overlay').classList.toggle('active');
     }
 
     function addToCart(event, id) {
+      playBeep(587.33, 0.08);
       const item = menuData.find(i => i.id === id);
       const existing = cart.find(i => i.id === id);
       
@@ -350,6 +461,7 @@
     }
 
     function changeQty(id, delta) {
+      playBeep(400, 0.05);
       const item = cart.find(i => i.id === id);
       if (item) {
         item.qty += delta;
@@ -408,22 +520,72 @@
     }
 
     function processPayment() {
-      const selectedMethod = document.querySelector('input[name="payment"]:checked').value;
-      let msg = "";
-      if (selectedMethod === 'cod') {
-        msg = "Order placed successfully! Pay via Cash on Delivery upon arrival.";
-      } else if (selectedMethod === 'card') {
-        const cardNum = document.getElementById('dummy-card-num').value;
-        if(!cardNum) { alert("Please enter card details"); return; }
-        msg = "Card payment processed successfully via dummy card!";
-      } else if (selectedMethod === 'gpay') {
-        msg = "Redirecting to payment website...";
-      }
-      
-      alert(msg);
+      playBeep(880, 0.2);
       cart = [];
       updateCart();
       closeCheckout();
+      
+      launchPinataBlast();
+      document.getElementById('tracker-modal').classList.add('active');
+    }
+
+    function closeTracker() {
+      document.getElementById('tracker-modal').classList.remove('active');
+    }
+
+    // --- Piñata Confetti Blast Animation Engine ---
+    function launchPinataBlast() {
+      const canvas = document.getElementById('pinata-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let particles = [];
+      const colors = ['#ff6b35', '#ffd166', '#06d6a0', '#118ab2', '#ef476f', '#ffffff'];
+
+      for (let i = 0; i < 150; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 18,
+          vy: (Math.random() - 0.5) * 18 - 4,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1,
+          decay: Math.random() * 0.015 + 0.008,
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 10
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, index) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.4;
+          p.alpha -= p.decay;
+          p.rotation += p.rotSpeed;
+
+          if (p.alpha > 0) {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            ctx.restore();
+          }
+        });
+
+        particles = particles.filter(p => p.alpha > 0);
+        if (particles.length > 0) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      animate();
     }
 
     window.onload = init;

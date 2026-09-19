@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tastora — Gourmet Food Delivered</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Canvas for Piñata Explosion -->
+  <canvas id="pinataCanvas"></canvas>
+
+  <!-- Navigation -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="brand">
+        <span class="brand-badge">TASTORA</span>
+        <span class="brand-tagline">Midnight Dining & Curated Kitchen</span>
+      </div>
+
+      <div class="search-bar-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search biryani, mojito, grills, cakes..." />
+      </div>
+
+      <button id="openCartBtn" class="cart-trigger-btn" aria-label="Open cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <span>Cart</span>
+        <span id="cartCountBadge" class="cart-badge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="hero-strip">
+    <div class="hero-content">
+      <p class="hero-sub">Fresh Ingredients • Master Chef Recipes • 30 Min Delivery</p>
+      <h1>Flavors Crafted for the Cravings of the Night.</h1>
+    </div>
+  </section>
+
+  <!-- Category Nav -->
+  <nav class="category-nav">
+    <div class="category-scroll" id="categoryList">
+      <!-- Populated via JS -->
+    </div>
+  </nav>
+
+  <!-- Main Food Grid -->
+  <main class="main-wrapper">
+    <div class="section-title-wrap">
+      <div>
+        <h2 id="currentCategoryHeading">All Dishes</h2>
+        <p id="itemCountLabel">Showing freshly prepared items</p>
+      </div>
+    </div>
+
+    <div class="food-grid" id="foodGrid">
+      <!-- Cards rendered via JS -->
+    </div>
+  </main>
+
+  <!-- Cart Drawer -->
+  <div class="cart-backdrop" id="cartBackdrop"></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <div>
+        <h3>Your Order</h3>
+        <p id="drawerItemSummary">0 items selected</p>
+      </div>
+      <button class="close-btn" id="closeCartBtn">&times;</button>
+    </div>
+
+    <!-- Free Delivery Progress -->
+    <div class="free-delivery-tracker">
+      <div class="tracker-info">
+        <span id="freeDeliveryMsg">Add ₹500 for Free Delivery</span>
+      </div>
+      <div class="tracker-track">
+        <div class="tracker-bar" id="freeDeliveryBar"></div>
+      </div>
+    </div>
+
+    <!-- Items List -->
+    <div class="cart-items" id="cartItemsList">
+      <!-- Items dynamically added -->
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="cart-footer">
+      <div class="summary-line">
+        <span>Subtotal</span>
+        <span id="subtotalVal">₹0</span>
+      </div>
+      <div class="summary-line">
+        <span>Delivery Fee</span>
+        <span id="deliveryFeeVal">₹40</span>
+      </div>
+      <div class="summary-line total-line">
+        <span>To Pay</span>
+        <span id="cartTotalVal">₹0</span>
+      </div>
+      <button id="checkoutTriggerBtn" class="primary-checkout-btn">Proceed to Checkout</button>
+    </div>
+  </aside>
+
+  <!-- Mobile Floating Cart Bar -->
+  <div class="mobile-cart-bar" id="mobileCartBar">
+    <div class="bar-info">
+      <span class="bar-count" id="mobileItemCount">0 items</span>
+      <span class="bar-price" id="mobileTotalPrice">₹0</span>
+    </div>
+    <button class="bar-btn" id="mobileViewCartBtn">View Cart →</button>
+  </div>
+
+  <!-- CHECKOUT & PAYMENT MODAL -->
+  <div class="checkout-backdrop" id="checkoutBackdrop"></div>
+  <div class="checkout-modal" id="checkoutModal">
+    <div class="checkout-header">
+      <h3>Select Payment Method</h3>
+      <button class="close-modal-btn" id="closeCheckoutBtn">&times;</button>
+    </div>
+
+    <!-- Address details -->
+    <div class="checkout-inputs">
+      <label>Delivery Address</label>
+      <input type="text" id="custAddress" value="742 Evergreen Terrace, Flat 4B" placeholder="Flat / House No., Street, Landmark" />
+      <div class="inputs-row">
+        <div>
+          <label>Recipient Name</label>
+          <input type="text" id="custName" value="Alex Morgan" placeholder="Your name" />
+        </div>
+        <div>
+          <label>Contact Number</label>
+          <input type="text" id="custPhone" value="+91 98765 43210" placeholder="Mobile number" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Switcher Tabs -->
+    <div class="payment-tabs">
+      <button class="pay-tab active" data-method="cash">
+        <span class="tab-icon">💵</span>
+        <span>Cash on Delivery</span>
+      </button>
+
+      <button class="pay-tab" data-method="card">
+        <span class="tab-icon">💳</span>
+        <span>Card</span>
+      </button>
+
+      <button class="pay-tab" data-method="online">
+        <span class="tab-icon">⚡</span>
+        <span class="tab-title">Online <span class="badge-rec">(Recommended)</span></span>
+      </button>
+    </div>
+
+    <!-- Cash Panel -->
+    <div class="pay-panel active" id="panel-cash">
+      <div class="cash-card-info">
+        <div class="cash-icon-big">📦</div>
+        <p class="cash-title">Pay with exact cash or scan upon delivery</p>
+        <p class="cash-desc">No advance payment needed. Pay our delivery executive when your hot food arrives at your door.</p>
+      </div>
+      <button class="action-pay-btn" id="confirmCashBtn">Confirm Cash Order (<span class="pay-amount-label">₹0</span>)</button>
+    </div>
+
+    <!-- Card Panel -->
+    <div class="pay-panel" id="panel-card">
+      <div class="dummy-card-preview">
+        <div class="card-chip"></div>
+        <div class="card-number-mock">4532 •••• •••• 8890</div>
+        <div class="card-meta">
+          <div>
+            <small>CARD HOLDER</small>
+            <span>ALEX MORGAN</span>
+          </div>
+          <div>
+            <small>EXPIRES</small>
+            <span>09/28</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-inputs-grid">
+        <input type="text" value="4532 8920 1192 8890" readonly />
+        <div class="inputs-row">
+          <input type="text" value="09/28" readonly />
+          <input type="text" value="CVV: 492" readonly />
+        </div>
+      </div>
+      <button class="action-pay-btn" id="confirmCardBtn">Pay <span class="pay-amount-label">₹0</span> with Card</button>
+    </div>
+
+    <!-- Online Transaction Panel (Secret Video Link) -->
+    <div class="pay-panel" id="panel-online">
+      <div class="online-box">
+        <div class="online-secure-badge">
+          <span>🔒 256-bit Encrypted Instant Transfer</span>
+          <span class="pill-glow">Fastest</span>
+        </div>
+        <p class="online-prompt">
+          Instant UPI, NetBanking, and Instant Wallet settlement with zero convenience fee.
+        </p>
+
+        <!-- Secretly opens the target link in a new tab -->
+        <a 
+          href="https://youtu.be/dQw4w9WgXcQ?si=7SzsACEi2b-yFXuk" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="secret-online-btn"
+          id="onlineGatewayLink"
+        >
+          <span>Click here to proceed for payment</span>
+          <span class="arrow-icon">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS POPUP MODAL -->
+  <div class="success-backdrop" id="successBackdrop"></div>
+  <div class="success-modal" id="successModal">
+    <div class="success-blast-glow"></div>
+    <div class="check-circle-anim">
+      <svg viewBox="0 0 52 52">
+        <circle class="check-circle" cx="26" cy="26" r="23" fill="none"/>
+        <path class="check-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+      </svg>
+    </div>
+    <h2 class="success-heading">Successfully Done!</h2>
+    <p class="success-sub" id="successMethodText">Your order has been sent straight to the chef.</p>
+    
+    <div class="order-token-badge">
+      <span>Order ID: #TAS-<span id="orderTokenNum">9841</span></span>
+    </div>
+
+    <p class="estimate-time">⏱️ Estimated Arrival: <strong>28-35 mins</strong></p>
+
+    <button class="success-close-btn" id="finishSuccessBtn">Awesome, Track Order</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -345,11 +345,9 @@
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            // Successfully fetched GPS coordinates
             locEl.innerHTML = `📍 GPS Location Active ▾`;
           },
           (error) => {
-            // Default fallback location if permission denied
             locEl.innerHTML = `📍 T. Nagar, Chennai ▾`;
           },
           { timeout: 5000 }
@@ -520,11 +518,12 @@
     }
 
     function processPayment() {
-      playBeep(880, 0.2);
+      playBeep(880, 0.2); // Success chime
       cart = [];
       updateCart();
       closeCheckout();
       
+      // Trigger Piñata Confetti Blast & Open Live Tracker Modal
       launchPinataBlast();
       document.getElementById('tracker-modal').classList.add('active');
     }
